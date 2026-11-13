@@ -1,6 +1,7 @@
 """Tests for the business cost rule."""
 
 import pytest
+
 from noshows.evaluation import total_cost
 
 
