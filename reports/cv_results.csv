@@ -1,0 +1,5 @@
+model,accuracy_mean,accuracy_std,precision_mean,precision_std,recall_mean,recall_std,f1_mean,f1_std,roc_auc_mean,roc_auc_std
+Dummy,0.7383,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.5,0.0
+LogisticRegression,0.758,0.0175,0.5918,0.0781,0.2293,0.0498,0.3299,0.0639,0.7273,0.0117
+DecisionTreeBalanced,0.6703,0.0198,0.4022,0.0227,0.5236,0.0333,0.4539,0.0169,0.6499,0.0117
+RandomForest,0.7493,0.0129,0.5769,0.0926,0.1389,0.0421,0.2229,0.0618,0.7103,0.0101
