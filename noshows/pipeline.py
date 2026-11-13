@@ -1,5 +1,4 @@
-
-"""Leakage-free feature selection and preprocessing."""
+"""Feature selection, split and preprocessing."""
 
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -7,10 +6,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-# One place for settings
 SEED = 11
 TARGET = "no_show"
-
 NUMERIC_FEATURES = [
     "lead_days",
     "age",
@@ -19,58 +16,33 @@ NUMERIC_FEATURES = [
     "first_visit",
     "distance_km",
 ]
-
-CATEGORICAL_FEATURES = [
-    "weekday",
-    "booking",
-    "insurance",
-    "treatment",
-]
-
+CATEGORICAL_FEATURES = ["weekday", "booking", "insurance", "treatment"]
 FEATURES = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
 
 def split_appointments(frame):
-    """Split into 75% training and 25% final test data."""
-
-    X = frame[FEATURES]
-    y = frame[TARGET]
-
     return train_test_split(
-        X,
-        y,
+        frame[FEATURES],
+        frame[TARGET],
         test_size=0.25,
         random_state=SEED,
-        stratify=y,
+        stratify=frame[TARGET],
     )
 
 
-def build_pipeline(estimator):
-    """Build the same preprocessing for any ML model."""
-
-    numeric_pipeline = Pipeline(
-        [
-            ("imputer", SimpleImputer(strategy="median")),
-            ("scaler", StandardScaler()),
-        ]
+def build_pipeline(estimator, numeric_features=None):
+    nums = NUMERIC_FEATURES if numeric_features is None else numeric_features
+    numeric_steps = Pipeline(
+        [("imputer", SimpleImputer(strategy="median")), ("scaler", StandardScaler())]
     )
-
-    categorical_pipeline = Pipeline(
-        [
-            ("encoder", OneHotEncoder(handle_unknown="ignore")),
-        ]
-    )
-
     preprocessor = ColumnTransformer(
         [
-            ("numeric", numeric_pipeline, NUMERIC_FEATURES),
-            ("categorical", categorical_pipeline, CATEGORICAL_FEATURES),
+            ("numeric", numeric_steps, nums),
+            (
+                "categorical",
+                OneHotEncoder(handle_unknown="ignore"),
+                CATEGORICAL_FEATURES,
+            ),
         ]
     )
-
-    return Pipeline(
-        [
-            ("preprocessor", preprocessor),
-            ("model", estimator),
-        ]
-    )
+    return Pipeline([("preprocessor", preprocessor), ("model", estimator)])
