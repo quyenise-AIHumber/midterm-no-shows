@@ -35,8 +35,6 @@ The target variable is no_show.
 
 ## Model comparison
 
-## Model comparison
-
 Four models were evaluated using five-fold stratified cross-validation on the training data.
 
 | Model | Mean accuracy | Mean ROC-AUC |
