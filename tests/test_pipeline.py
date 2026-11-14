@@ -8,17 +8,60 @@ from sklearn.preprocessing import OneHotEncoder
 
 from noshows.data import make_appointments
 from noshows.pipeline import (
+    CATEGORICAL_FEATURES,
     FEATURES,
+    NUMERIC_FEATURES,
     build_pipeline,
     split_appointments,
 )
 
 
-def test_dataset_is_reproducible():
-    a = make_appointments()
-    b = make_appointments()
+@pytest.mark.parametrize("seed", [11, 29])
+def test_dataset_is_reproducible(seed):
+    a = make_appointments(seed=seed)
+    b = make_appointments(seed=seed)
 
     assert a.equals(b)
+
+
+def test_default_dataset_has_expected_schema_and_binary_target():
+    frame = make_appointments()
+    expected_columns = {
+        "appointment_id",
+        "lead_days",
+        "age",
+        "prior_no_shows",
+        "hour",
+        "weekday",
+        "booking",
+        "insurance",
+        "treatment",
+        "first_visit",
+        "distance_km",
+        "fee_charged",
+        "no_show",
+    }
+
+    assert frame.shape == (4000, 13)
+    assert frame.columns.is_unique
+    assert set(frame.columns) == expected_columns
+    assert frame["no_show"].isin([0, 1]).all()
+
+
+def test_feature_lists_have_exact_expected_composition():
+    expected_numeric = [
+        "lead_days",
+        "age",
+        "prior_no_shows",
+        "hour",
+        "first_visit",
+        "distance_km",
+    ]
+    expected_categorical = ["weekday", "booking", "insurance", "treatment"]
+
+    assert NUMERIC_FEATURES == expected_numeric
+    assert CATEGORICAL_FEATURES == expected_categorical
+    assert FEATURES == NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
 
 @pytest.mark.parametrize(
@@ -26,11 +69,14 @@ def test_dataset_is_reproducible():
     ["appointment_id", "fee_charged", "no_show"],
 )
 def test_excluded_columns(excluded):
-    assert excluded not in FEATURES
+    for feature_list in (NUMERIC_FEATURES, CATEGORICAL_FEATURES, FEATURES):
+        assert excluded not in feature_list
 
 
-def test_stratified_split():
-    frame = make_appointments()
+@pytest.mark.parametrize("dataset_seed", [11, 29, 73])
+def test_stratified_split(dataset_seed):
+    """Verify split sizes, class allocation, row identity and label alignment."""
+    frame = make_appointments(seed=dataset_seed)
 
     X_train, X_test, y_train, y_test = split_appointments(frame)
 
@@ -40,7 +86,42 @@ def test_stratified_split():
     assert len(y_train) == 3000
     assert len(y_test) == 1000
 
-    assert abs(y_train.mean() - y_test.mean()) < 0.02
+    assert len(X_train) + len(X_test) == len(frame) == 4000
+    assert X_train.index.is_unique
+    assert X_test.index.is_unique
+    assert X_train.index.intersection(X_test.index).empty
+    combined_indices = X_train.index.append(X_test.index)
+    assert combined_indices.is_unique
+    assert combined_indices.sort_values().equals(frame.index.sort_values())
+
+    full_counts = frame["no_show"].value_counts().sort_index()
+    full_no_show_rate = frame["no_show"].mean()
+    train_no_show_rate = y_train.mean()
+    test_no_show_rate = y_test.mean()
+
+    # Integer allocation may round each expected class count up or down.
+    for X_partition, y_partition, no_show_rate in (
+        (X_train, y_train, train_no_show_rate),
+        (X_test, y_test, test_no_show_rate),
+    ):
+        assert len(X_partition) == len(y_partition)
+        assert X_partition.index.equals(y_partition.index)
+        assert X_partition.equals(frame.loc[X_partition.index, FEATURES])
+        assert y_partition.equals(frame.loc[y_partition.index, "no_show"])
+
+        expected_counts = full_counts * (len(y_partition) / len(frame))
+        actual_counts = y_partition.value_counts().reindex(
+            full_counts.index, fill_value=0
+        )
+        assert (abs(actual_counts - expected_counts) < 1).all()
+        assert no_show_rate == pytest.approx(
+            full_no_show_rate, abs=1 / len(y_partition)
+        )
+
+    combined_counts = (
+        y_train.value_counts().add(y_test.value_counts(), fill_value=0).sort_index()
+    )
+    np.testing.assert_array_equal(combined_counts.to_numpy(), full_counts.to_numpy())
 
 
 @pytest.fixture(scope="module")
