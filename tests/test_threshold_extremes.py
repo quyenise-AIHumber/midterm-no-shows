@@ -1,4 +1,3 @@
-
 """Test threshold selection when costs are extreme."""
 
 from noshows.evaluation import choose_threshold

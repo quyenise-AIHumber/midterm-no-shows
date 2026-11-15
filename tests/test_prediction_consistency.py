@@ -1,4 +1,3 @@
-
 """Verify probability and action consistency across bookings."""
 
 import pytest
@@ -15,9 +14,7 @@ from noshows.predictor import NoShowPredictor
         (60, 5, "online"),
     ],
 )
-def test_prediction_consistency(
-    lead_days, prior_no_shows, booking_type
-):
+def test_prediction_consistency(lead_days, prior_no_shows, booking_type):
     appointment = Appointment(
         lead_days=lead_days,
         age=40,
@@ -37,14 +34,8 @@ def test_prediction_consistency(
     probability = result["probability_no_show"]
 
     assert 0 <= probability <= 1
-    assert result["probability_attend"] == pytest.approx(
-        1 - probability
-    )
-    assert result["call_patient"] == (
-        probability >= predictor.threshold
-    )
+    assert result["probability_attend"] == pytest.approx(1 - probability)
+    assert result["call_patient"] == (probability >= predictor.threshold)
     assert result["action"] == (
-        "Call patient to confirm"
-        if result["call_patient"]
-        else "No call needed"
+        "Call patient to confirm" if result["call_patient"] else "No call needed"
     )

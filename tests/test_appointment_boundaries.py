@@ -1,4 +1,3 @@
-
 """Test appointment input boundaries and unusual numeric values."""
 
 import math
