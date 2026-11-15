@@ -3,7 +3,7 @@ from noshows.evaluation import choose_threshold
 
 
 def test_threshold_when_calls_are_expensive():
-    labels = [1, 0, 1, 0]
+    labels = [1, 1 , 1, 1]
     probabilities = [0.9, 0.8, 0.3, 0.2]
 
     best, results = choose_threshold(
