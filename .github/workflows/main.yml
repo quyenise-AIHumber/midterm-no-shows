@@ -1,0 +1,38 @@
+
+name: Verify tests 5-7
+
+on:
+  push:
+    branches:
+      - feature/tests-5-7
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements-dev.txt
+
+      - name: Run my tests
+        run: |
+          python -m pytest tests/test_threshold_extremes.py tests/test_appointment_boundaries.py tests/test_prediction_consistency.py -v
+
+      - name: Check formatting
+        run: python -m ruff format --check .
+
+      - name: Check linting
+        run: python -m ruff check .
+
+      - name: Run full test suite
+        run: python -m pytest
