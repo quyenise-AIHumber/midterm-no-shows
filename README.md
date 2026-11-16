@@ -14,6 +14,10 @@ This synthetic-data demonstration addresses missed appointments by predicting no
 
 Public Hugging Face Space: [Maple Physio No-Show Check](https://huggingface.co/spaces/quyenise/midterm-no-shows).
 
+### Demo video
+
+Video link: To be added after recording.
+
 ## How to run it locally
 
 Create and activate the Conda environment:
@@ -37,7 +41,13 @@ gradio app.py
 
 ## Team
 
-Team members and individual responsibilities will be confirmed and updated before final submission.
+| Team Member | Responsibilities |
+|---|---|
+| **Trong Quyen Luong** | Developed the initial project code and README draft; verified the Hugging Face Space functionality. |
+| **Sunyeong Kim** | Developed Tests 1–4, revised the README, and performed overall functionality checks. |
+| **Teresa Christian** | Developed Tests 5–7 and performed overall functionality checks. |
+| **Dieu Tam Vuong** | Developed Tests 8–10 and performed overall functionality checks. |
+| **Endurance Ahuean** | |
 
 ## Decisions
 
