@@ -58,6 +58,9 @@ def test_model_loaded_once(monkeypatch, booking_data):
 
     monkeypatch.setattr("noshows.predictor.joblib.load", tracked_load)
     predictor = NoShowPredictor()
+    assert len(calls) == 1
+    assert str(calls[0]).endswith("no_show.joblib")
+
     booking = Appointment(**booking_data)
     predictor.predict(booking)
     predictor.predict(booking)
