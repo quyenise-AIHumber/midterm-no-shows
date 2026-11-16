@@ -68,11 +68,11 @@ The dataset contains 4,000 synthetic appointments, 13 columns and binary target 
 
 Excluded columns are `appointment_id` (identifier), `fee_charged` (post-visit information causing leakage) and `no_show` (the prediction target).
 
-Input limits prevent unrealistic values while allowing reasonable variation beyond the training data. Only `distance_km` may be missing because some distance values are not recorded in the dataset.
+Input limits reject implausible values while allowing reasonable variation beyond the training ranges. Only `distance_km` may be left blank because some distances are missing in the dataset.
 
-Numeric preprocessing uses `SimpleImputer(strategy="median")` and `StandardScaler`. Each CV fold learns preprocessing from its training portion; the final pipeline uses training data only. Empty `distance_km` is replaced with the learned median and triggers a warning. Other missing inputs, nonfinite numbers, booleans and out-of-range values are rejected. `first_visit` must be 0 or 1; other numeric inputs need not be integers.
+Numeric preprocessing uses `SimpleImputer(strategy="median")` and `StandardScaler`, fitted on each CV fold's training portion or on the final training set. Missing distance is imputed with the learned median, and the app shows a warning. Other missing inputs, nonfinite numbers, booleans and out-of-range values are rejected. `first_visit` must be 0 or 1; other numeric inputs need not be integers.
 
-`OneHotEncoder(handle_unknown="ignore")` tolerates unseen categories within the raw pipeline. Separately, `Appointment` rejects categories outside the exact, case-sensitive choices to catch input errors. The held-out test set is excluded from preprocessing fitting, model selection, tuning and threshold selection.
+`OneHotEncoder(handle_unknown="ignore")` handles unseen categories in the raw pipeline, while `Appointment` rejects invalid, case-sensitive choices. The held-out test set is reserved for final evaluation and is not used to fit preprocessing, select a model, tune settings or choose a threshold.
 
 ## Model comparison
 
@@ -130,7 +130,7 @@ Final evaluation used 1,000 held-out synthetic appointments after model and thre
 
 The model achieved a **$2,700 (29.4%) cost reduction** compared with calling nobody and a **$1,530 (19.1%) reduction** compared with calling everybody.
 
-The model recommends 485 calls and leaves 74 no-shows uncalled: `485 x $8 + 74 x $35 = $6,470`. These savings depend on one sample's size and composition; different samples may change costs or policy rankings. No confidence interval was calculated. Fixed costs and perfect call effectiveness are assumed: called patients incur no no-show penalty, effectively assuming they attend. Actual calls may not reach or influence patients, so these are not guaranteed real-clinic savings.
+The model recommends 485 calls and leaves 74 no-shows uncalled: `485 x $8 + 74 x $35 = $6,470`. Savings are based on this single test sample; no confidence interval was calculated, so other samples may yield different costs. The calculation assumes fixed $8/$35 costs and that called patients attend. These savings are not guaranteed in a real clinic.
 
 ### Data leakage assessment
 
@@ -155,4 +155,8 @@ python -m pytest
 
 ## Limitations
 
-Synthetic attendance patterns may differ from real patients, and predictive associations do not establish causes of no-shows. Call effectiveness and savings rely on the assumptions described above. Median replacement loses individual distance information, and valid inputs outside the generator's observed ranges may be unfamiliar to the model. Training CV/OOF estimates may be optimistic because selection reuses the same folds. Before deployment, real-data and call-effectiveness validation, fairness assessment (including age and insurance), privacy safeguards, calibration checks and ongoing monitoring are needed.
+Synthetic attendance patterns may not reflect real patients. The model cannot establish why a patient misses an appointment or whether a reminder call will prevent it.
+
+Median imputation cannot recover a patient's actual travel distance, and some accepted inputs are outside the observed training range. Reusing CV folds for model and threshold selection may make training CV/OOF estimates optimistic.
+
+Before real-world use, the clinic needs validation on real patient data, an assessment of call effectiveness, fairness checks (especially for age and insurance), privacy safeguards, probability calibration and ongoing monitoring.
