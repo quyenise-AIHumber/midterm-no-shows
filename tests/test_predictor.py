@@ -1,6 +1,7 @@
 """Check model loading, risk, decisions and missing distance warning."""
 
 import joblib
+import numpy as np
 import pytest
 
 from noshows.appointment import Appointment
@@ -57,6 +58,9 @@ def test_model_loaded_once(monkeypatch, booking_data):
 
     monkeypatch.setattr("noshows.predictor.joblib.load", tracked_load)
     predictor = NoShowPredictor()
+    assert len(calls) == 1
+    assert str(calls[0]).endswith("no_show.joblib")
+
     booking = Appointment(**booking_data)
     predictor.predict(booking)
     predictor.predict(booking)
@@ -96,3 +100,27 @@ def test_riskier_booking_scores_higher():
 
 def test_readable_repr():
     assert "NoShowPredictor" in repr(NoShowPredictor())
+
+
+class StubModel:
+    """Stub model that always returns the same probability."""
+
+    classes_ = [0, 1]
+
+    def __init__(self, prob):
+        self.prob = prob
+
+    def predict_proba(self, X):
+        return np.array([[1 - self.prob, self.prob]])
+
+
+@pytest.mark.parametrize(
+    ("offset", "expected"),
+    [(-1e-6, False), (0.0, True), (1e-6, True)],
+    ids=["just_below", "exactly_at", "just_above"],
+)
+def test_predict_decision_around_threshold(monkeypatch, booking_data, offset, expected):
+    predictor = NoShowPredictor()
+    monkeypatch.setattr(predictor, "model", StubModel(predictor.threshold + offset))
+    result = predictor.predict(Appointment(**booking_data))
+    assert result["call_patient"] is expected

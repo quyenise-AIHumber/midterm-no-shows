@@ -43,10 +43,10 @@ def test_space_configuration():
     frontmatter = readme.split("---", 2)[1]
 
     assert re.search(r"(?m)^sdk:\s*gradio\s*$", frontmatter)
-    assert re.search(
-        r"(?m)^app_file:\s*app\.py\s*$",
-        frontmatter,
-    )
+
+    app_match = re.search(r"(?m)^app_file:\s*(.+)$", frontmatter)
+    assert app_match is not None
+    assert (ROOT / app_match.group(1).strip()).is_file()
 
     gradio_match = re.search(
         r"(?m)^sdk_version:\s*(.+)$",
@@ -55,7 +55,6 @@ def test_space_configuration():
 
     assert gradio_match is not None
     assert gradio_match.group(1).strip() == version("gradio")
-    assert (ROOT / "app.py").is_file()
 
 
 def test_gradio_not_in_runtime_requirements():
