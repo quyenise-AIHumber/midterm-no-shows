@@ -1,0 +1,52 @@
+{
+  "model_name": "LogisticRegression",
+  "scikit_learn_version": "1.9.1",
+  "seed": 11,
+  "threshold": 0.45,
+  "numeric_features": [
+    "lead_days",
+    "age",
+    "prior_no_shows",
+    "hour",
+    "first_visit",
+    "distance_km"
+  ],
+  "categorical_features": [
+    "weekday",
+    "booking",
+    "insurance",
+    "treatment"
+  ],
+  "best_settings": {
+    "model__C": 0.1,
+    "model__class_weight": "balanced"
+  },
+  "test_results": {
+    "test_samples": 1000,
+    "threshold": 0.45,
+    "accuracy": 0.629,
+    "precision": 0.38762886597938145,
+    "recall": 0.7175572519083969,
+    "f1": 0.5033467202141901,
+    "roc_auc": 0.7283352986201618,
+    "confusion_matrix": [
+      [
+        441,
+        297
+      ],
+      [
+        74,
+        188
+      ]
+    ],
+    "costs_usd": {
+      "call_nobody": 9170,
+      "call_everybody": 8000,
+      "model": 6470
+    },
+    "training_leakage_diagnostic": {
+      "honest_cv_roc_auc": 0.7274517979612083,
+      "leaky_cv_roc_auc": 0.9231585455277422
+    }
+  }
+}
