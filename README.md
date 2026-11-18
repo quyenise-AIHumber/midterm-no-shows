@@ -6,7 +6,7 @@ python_version: 3.12
 app_file: app.py
 ---
 
-# Maple Physio no-show check
+# Maple Physio No-Show check
 
 ## What it does
 
@@ -16,7 +16,7 @@ Public Hugging Face Space: [Maple Physio No-Show Check](https://huggingface.co/s
 
 ### Demo video
 
-Video link: To be added after recording.
+https://youtu.be/nR4EYv9_YQU
 
 ## How to run it locally
 
@@ -47,7 +47,7 @@ gradio app.py
 | **Sunyeong Kim** | Developed Tests 1–4, revised the README, and performed overall functionality checks. |
 | **Teresa Christian** | Developed Tests 5–7 and performed overall functionality checks. |
 | **Dieu Tam Vuong** | Developed Tests 8–10 and performed overall functionality checks. |
-| **Endurance Ahuean** | |
+| **Endurance Imah Ahuean** | Testing validation, README updates, test verification, and demo video integration. |
 
 ## Decisions
 
@@ -145,7 +145,7 @@ The inflated score uses future information unavailable at booking time. `fee_cha
 
 ## Tests
 
-**59 pytest cases passed**, counting parametrized cases rather than test functions. Coverage includes data reproducibility and feature lists; stratified splitting and row alignment; missing-value and categorical preprocessing; hand-worked costs and cheapest calling policies; threshold selection; `Appointment` input validation; model predictions; and saved artifacts and deployment configuration. Ruff formatting and lint checks also passed.
+**83 pytest cases passed**, counting parametrized cases rather than test functions. Coverage includes data reproducibility and feature lists; stratified splitting and row alignment; missing-value and categorical preprocessing; hand-worked costs and cheapest calling policies; threshold selection; `Appointment` input validation; model predictions; and saved artifacts and deployment configuration. Ruff formatting and lint checks also passed.
 
 ```powershell
 python -m ruff format --check .
